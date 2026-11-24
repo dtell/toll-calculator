@@ -20,7 +20,7 @@ public class TollCalculator
 
         var intervalStart = orderedDates.First();
 
-        if (!dates.All(d => d.Year == intervalStart.Year && d.DayOfYear == intervalStart.DayOfYear))
+        if (!orderedDates.All(d => d.Year == intervalStart.Year && d.DayOfYear == intervalStart.DayOfYear))
             throw new ArgumentException("Passages must be from same day");
 
         if (IsTollFreeDate(intervalStart)) return 0;
