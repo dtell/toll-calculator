@@ -1,6 +1,4 @@
-﻿using System;
-using System.Globalization;
-using TollFeeCalculator;
+﻿using TollFeeCalculator;
 
 public class TollCalculator
 {
@@ -15,12 +13,21 @@ public class TollCalculator
 
     public int GetTollFee(Vehicle vehicle, DateTime[] dates)
     {
+        if (vehicle.IsTollFree()) return 0;
         if (dates.Length == 0) return 0;
 
-        DateTime intervalStart = dates[0];
+        var orderedDates = dates.Order();
+
+        var intervalStart = orderedDates.First();
+
+        if (!dates.All(d => d.Year == intervalStart.Year && d.DayOfYear == intervalStart.DayOfYear))
+            throw new ArgumentException("Passages must be from same day");
+
+        if (IsTollFreeDate(intervalStart)) return 0;
+
         int totalFee = 0;
         int highestFeeCurrentHour = 0;
-        foreach (DateTime date in dates)
+        foreach (DateTime date in orderedDates)
         {
             int nextFee = GetTollFee(date, vehicle);
 
@@ -71,7 +78,7 @@ public class TollCalculator
 
         if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday) return true;
 
-        if (year == 2013)
+        if (year == 2013) //!! Need external source for holiday logic to ensure that it works every year
         {
             if (month == 1 && day == 1 ||
                 month == 3 && (day == 28 || day == 29) ||
